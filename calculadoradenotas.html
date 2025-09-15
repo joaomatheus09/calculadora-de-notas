@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora de Notas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+    }
+    th {
+      background: #eee;
+    }
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #result {
+      font-size: 18px;
+    }
+    .approved {
+      color: green;
+    }
+    .failed {
+      color: red;
+    }
+    .subject-result {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Calculadora de Notas</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Disciplina</th>
+        <th>Bimestre 1</th>
+        <th>Bimestre 2</th>
+        <th>Bimestre 3</th>
+        <th>Bimestre 4</th>
+      </tr>
+    </thead>
+    <tbody id="gradesTable"></tbody>
+  </table>
+
+  <button onclick="calcularResultado()">Calcular Resultado</button>
+  <div id="result"></div>
+
+  <script>
+    const disciplinas = [
+      "ARTE",
+      "BIOLOGIA",
+      "EDUCAÇÃO FÍSICA",
+      "FILOSOFIA",
+      "FÍSICA",
+      "FUNDAMENTOS DA INFORMÁTICA",
+      "GEOGRAFIA",
+      "HISTÓRIA",
+      "INGLÊS",
+      "INTRODUÇÃO À PROGRAMAÇÃO",
+      "MATEMÁTICA",
+      "MONTAGEM E MANUTENÇÃO",
+      "PORTUGUÊS",
+      "QUÍMICA",
+      "SEGURANÇA DO TRABALHO",
+      "SOCIOLOGIA"
+    ];
+
+    const gradesTable = document.getElementById("gradesTable");
+
+    // Gera dinamicamente a tabela com campos de input
+    disciplinas.forEach((disciplina, i) => {
+      const row = document.createElement("tr");
+      const tdDisciplina = document.createElement("td");
+      tdDisciplina.textContent = disciplina;
+      row.appendChild(tdDisciplina);
+
+      for (let j = 1; j <= 4; j++) {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = 0;
+        input.max = 10;
+        input.step = 0.1;
+        input.id = `m${i}t${j}`;
+        td.appendChild(input);
+        row.appendChild(td);
+      }
+
+      gradesTable.appendChild(row);
+    });
+
+    function calcularResultado() {
+      let resultadoHTML = "";
+      let aprovadoGeral = true;
+      const pontosNecessarios = 24;
+
+      disciplinas.forEach((disciplina, i) => {
+        let soma = 0;
+        let valido = true;
+
+        for (let j = 1; j <= 4; j++) {
+          const valor = parseFloat(document.getElementById(`m${i}t${j}`).value);
+          if (isNaN(valor) || valor < 0 || valor > 10) {
+            valido = false;
+            break;
+          }
+          soma += valor;
+        }
+
+        if (!valido) {
+          resultadoHTML += `<p class="subject-result">${disciplina}: <span class="failed">Nota inválida. Preencha com valores de 0 a 10.</span></p>`;
+          aprovadoGeral = false;
+          return;
+        }
+
+        const media = soma / 4;
+        const status = soma >= pontosNecessarios ? "Aprovado" : "Reprovado";
+        const classe = soma >= pontosNecessarios ? "approved" : "failed";
+
+        let mensagemAdicional = "";
+        if (soma < pontosNecessarios) {
+          aprovadoGeral = false;
+          const pontosFaltantes = (pontosNecessarios - soma).toFixed(2);
+          mensagemAdicional = ` (Faltam ${pontosFaltantes} pontos)`;
+        }
+
+        resultadoHTML += `<p class="subject-result">${disciplina}: <span class="${classe}">${status} (Total: ${soma.toFixed(2)} / 24)${mensagemAdicional}</span></p>`;
+      });
+
+      resultadoHTML += `<hr>`;
+
+      if (aprovadoGeral) {
+        resultadoHTML += `<p><span class="approved">Parabéns! Você foi aprovado em todas as disciplinas! 🎉</span></p>`;
+      } else {
+        resultadoHTML += `<p><span class="failed">Você foi reprovado em uma ou mais disciplinas. 😔</span></p>`;
+      }
+
+      document.getElementById("result").innerHTML = resultadoHTML;
+    }
+  </script>
+</body>
+</html>
